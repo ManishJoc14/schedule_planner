@@ -15,8 +15,7 @@ public:
     void addNote(const std::string &note)
     {
         notes.push_back(note); // Add the note to the vector
-        std::cout << "Note :"
-                  << note << "added\n";
+        std::cout << "Note: " << note << " added\n";
         saveToFile(); // Save notes to file
     }
 
@@ -25,8 +24,13 @@ public:
     {
         if (index >= 0 && index < notes.size())
         {
+            std::cout << "Note: " << notes[index] << " deleted\n";
             notes.erase(notes.begin() + index); // Remove the note at the specified index
             saveToFile();                       // Save notes to file
+        }
+        else
+        {
+            std::cerr << "Invalid index for deleting note\n";
         }
     }
 
@@ -35,8 +39,13 @@ public:
     {
         if (index >= 0 && index < notes.size())
         {
+            std::cout << "Note: " << notes[index] << " updated to " << newNote << "\n";
             notes[index] = newNote; // Update the note at the specified index
             saveToFile();           // Save notes to file
+        }
+        else
+        {
+            std::cerr << "Invalid index for updating note\n";
         }
     }
 
@@ -46,6 +55,7 @@ public:
         return notes; // Return a copy of the notes vector
     }
 
+    // Function to read notes from a file
     void readNotesFromFile()
     {
         notes.clear(); // Clear existing notes
@@ -56,7 +66,7 @@ public:
             std::string line;
             while (std::getline(file, line))
             {
-                notes.push_back(line); // Read each line from the file and add it to notes
+                notes.push_back(line); // Read each line from the file and add it to notes vector
             }
             file.close();
         }
@@ -66,7 +76,7 @@ private:
     // Function to save notes to a file
     void saveToFile() const
     {
-        std::ofstream file("../cpp/notes.txt", std::ios::app); // Open the file in append mode
+        std::ofstream file("../cpp/notes.txt", std::ios::app); // Open the file in truncate mode to clear existing content
         if (file.is_open())
         {
             for (const auto &note : notes)
@@ -79,31 +89,54 @@ private:
 };
 
 // Function to handle messages based on type and data
-void handleMessage(const char *type, const char *data = "")
+void handleMessage(const char *type, const std::vector<std::string> &args)
 {
     NoteManager noteManager; // Create an instance of NoteManager
 
     if (strcmp(type, "addNote") == 0)
     {
-        noteManager.addNote(data); // Add a note using provided data
+        if (args.size() >= 3)
+        {
+            std::string category = args[0];
+            std::string note = args[1];
+            std::string createdAt = args[2];
+            std::string fullNote = category + "~~~" + note + "~~~" + createdAt;
+            noteManager.addNote(fullNote); // Add a note using provided data
+        }
+        else
+        {
+            std::cerr << "Insufficient arguments for addNote" << std::endl;
+        }
     }
     else if (strcmp(type, "deleteNote") == 0)
     {
-        int index = std::stoi(data);   // Convert data to integer (index)
-        noteManager.deleteNote(index); // Delete a note by index
+        if (args.size() >= 1)
+        {
+            int index = std::stoi(args[0]); // Convert data to integer (index)
+            noteManager.deleteNote(index);  // Delete a note by index
+        }
+        else
+        {
+            std::cerr << "Insufficient arguments for deleteNote" << std::endl;
+        }
     }
     else if (strcmp(type, "updateNote") == 0)
     {
-        std::istringstream ss(data);
-        std::string indexStr, newNote;
-        ss >> indexStr >> newNote; // Parse data into index and new note
-        int index = std::stoi(indexStr);
-        noteManager.updateNote(index, newNote); // Update a note by index
+        if (args.size() >= 2)
+        {
+            int index = std::stoi(args[0]); // Convert data to integer (index)
+            std::string newNote = args[1];
+            noteManager.updateNote(index, newNote); // Update a note by index
+        }
+        else
+        {
+            std::cerr << "Insufficient arguments for updateNote" << std::endl;
+        }
     }
     else if (strcmp(type, "viewNote") == 0)
     {
-        noteManager.readNotesFromFile();                          // Read notes from the file
-        std::vector<std::string> notes = noteManager.viewNotes(); // Retrieve all notes
+        noteManager.readNotesFromFile();                          // Read notes from the file and store in notes vector
+        std::vector<std::string> notes = noteManager.viewNotes(); // Retrieve a copy of notes vector
         for (const auto &note : notes)
         {
             std::cout << note << "\n"; // Print each note
@@ -120,9 +153,13 @@ int main(int argc, char *argv[])
 {
     if (argc > 1)
     {
-        // argv[1] = type and argv[2] = data
-        // there will be no data in case of viewNotes
-        handleMessage(argv[1], (argc > 2) ? argv[2] : ""); // Call handleMessage with type and data from command-line arguments
+        // Assuming argv is an array of strings containing command-line arguments
+        // for addNote  argv = ["schedule_planner.exe", "addNote", "Health", "Eat veggies", "2023-01-01 12:00:00"]
+        // i.e [filename.exe, type, category, note, createdAt];
+
+        const char *type = argv[1];
+        std::vector<std::string> args(argv + 2, argv + argc); // Extract all arguments passed starting from index 2 and make a vector of strings and call it args
+        handleMessage(type, args);                            // Call handleMessage with type and args from command-line arguments
     }
 
     return 0;

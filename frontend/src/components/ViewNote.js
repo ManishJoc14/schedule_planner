@@ -1,38 +1,41 @@
-import React, { useState, useEffect } from "react";
-import { view_Note } from "../redux/apis";
-import axios from "axios";
+// ViewNotes.js
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { viewNoteAsync } from "../redux/thunk";
 
-const ViewNote = () => {
-  const [notes, setNotes] = useState([]);
+const ViewNotes = () => {
+  const dispatch = useDispatch();
+  const notes = useSelector((state) => state.notes.notes);
 
   useEffect(() => {
-    // Fetch notes from the server when the component mounts
-    const viewAllNotes = async () => {
-      try {
-        const res = await view_Note();
-        const data = res?.data?.notes;
-        setNotes(data);
-      } catch (error) {
-        console.error("Error fetching notes:", error);
-      }
-    };
-    viewAllNotes();
-  }, []);
-
+    try {
+      dispatch(viewNoteAsync()); //array of notes obj
+    } catch (error) {
+      console.log("Error viewing notes :" + error);
+    }
+  }, [dispatch]);
   return (
     <div>
       <h2>View Notes</h2>
-      {notes?.length > 0 ? (
-        <ul>
-          {notes.map((note, index) => (
-            <li key={index}>{note}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>No notes available.</p>
-      )}
+      <ul>
+        {notes.length > 0 ? (
+          <>
+            {notes.map((note, index) => (
+              <li key={index}>
+                <strong>Category:</strong> {note.category},{" "}
+                <strong>Note:</strong> {note.note},{" "}
+                <strong>Created At:</strong> {note.createdAt}
+              </li>
+            ))}
+          </>
+        ) : (
+          <>
+            <h3>No notes available...</h3>
+          </>
+        )}
+      </ul>
     </div>
   );
 };
 
-export default ViewNote;
+export default ViewNotes;

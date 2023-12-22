@@ -3,6 +3,7 @@ const app = express();
 const { spawn } = require("child_process");
 const port = 3001;
 const cors = require("cors");
+const { constants } = require("crypto");
 
 app.use(express.json());
 app.use(cors());
@@ -10,11 +11,16 @@ app.use(cors());
 // Route to add a note
 app.post("/addNote", (req, res) => {
   try {
-    const { note: data } = req.body;
+    const { category, note, createdAt } = req.body;
     const type = "addNote";
 
     // Execute the C++ program with the note as a command-line argument
-    const studyScheduler = spawn("./schedule_planner.exe", [type, data]);
+    const studyScheduler = spawn("./schedule_planner.exe", [
+      type,
+      category,
+      note,
+      createdAt,
+    ]);
 
     studyScheduler.stdout.on("data", (data) => {
       const output = data.toString("utf8");
@@ -27,11 +33,11 @@ app.post("/addNote", (req, res) => {
 
     studyScheduler.on("close", (code) => {
       console.log(`C++ process exited with code ${code}`);
-      res.send({ message: "Note added successfully " });
+      res.send({ category, note, createdAt });
     });
   } catch (error) {
     console.error("Error adding note:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Error adding note: Internal Server Error" });
   }
 });
 
@@ -41,13 +47,21 @@ app.get("/viewNote", (req, res) => {
     const type = "viewNote";
 
     const studyScheduler = spawn("./schedule_planner.exe", [type]);
-
     let notes = [];
-
     studyScheduler.stdout.on("data", (data) => {
-      const unfilteredNotes = data.toString().split("\n");
-      // Filter out empty lines
-      notes = unfilteredNotes.filter((note) => note.trim() !== "");
+      const createNoteFromOutPutOfCPP = (data) => {
+        const unfilteredNotes = data.toString().split("\n");
+        // Filter out empty lines
+        const unseparetedNotes = unfilteredNotes.filter(
+          (note) => note.trim() !== ""
+        );
+        //["a~a~2023-12-22T14:43:20.868Z", "a~a~2023-12-22T14:43:20.868Z",...]
+        return unfilteredNotes.map((unfilteredNote) => {
+          const [category, note, createdAt] = unfilteredNote.split("~~~");
+          return { category, note, createdAt };
+        });
+      };
+      notes = createNoteFromOutPutOfCPP(data);
       for (const note of notes) {
         console.log(note);
       }
