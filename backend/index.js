@@ -50,14 +50,14 @@ app.get("/viewNote", (req, res) => {
     let notes = [];
     studyScheduler.stdout.on("data", (data) => {
       const createNoteFromOutPutOfCPP = (data) => {
-        const unfilteredNotes = data.toString().split("\n");
+        const unfilteredNotes = data.toString("utf8").split("\n");
         // Filter out empty lines
         const unseparetedNotes = unfilteredNotes.filter(
           (note) => note.trim() !== ""
         );
         //["a~a~2023-12-22T14:43:20.868Z", "a~a~2023-12-22T14:43:20.868Z",...]
-        return unfilteredNotes.map((unfilteredNote) => {
-          const [category, note, createdAt] = unfilteredNote.split("~~~");
+        return unseparetedNotes.map((unseparetedNote) => {
+          const [category, note, createdAt] = unseparetedNote.split("~~~");
           return { category, note, createdAt };
         });
       };
