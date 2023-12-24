@@ -11,29 +11,25 @@ app.use(cors());
 // Route to add a note
 app.post("/addNote", (req, res) => {
   try {
-    const { category, note, createdAt } = req.body;
+    const { note, category, startDate, endDate, description, priority } = req.body;
     const type = "addNote";
 
     // Execute the C++ program with the note as a command-line argument
-    const studyScheduler = spawn("./schedule_planner.exe", [
-      type,
-      category,
-      note,
-      createdAt,
-    ]);
+    const studyScheduler = spawn("./schedule_planner.exe", [type, note, category, startDate, endDate, description, priority]);
 
     studyScheduler.stdout.on("data", (data) => {
       const output = data.toString("utf8");
       console.log(output);
     });
 
-    studyScheduler.on("error", (error) => {
-      console.error("Error:", error.message);
+    studyScheduler.stderr.on("data", (data) => {
+      const output = data.toString("utf8");
+      console.log(output);
     });
 
     studyScheduler.on("close", (code) => {
       console.log(`C++ process exited with code ${code}`);
-      res.send({ category, note, createdAt });
+      res.send({ note, category, startDate, endDate, description, priority });
     });
   } catch (error) {
     console.error("Error adding note:", error);
@@ -51,14 +47,16 @@ app.get("/viewNote", (req, res) => {
     studyScheduler.stdout.on("data", (data) => {
       const createNoteFromOutPutOfCPP = (data) => {
         const unfilteredNotes = data.toString("utf8").split("\n");
+
         // Filter out empty lines
         const unseparetedNotes = unfilteredNotes.filter(
           (note) => note.trim() !== ""
         );
-        //["a~a~2023-12-22T14:43:20.868Z", "a~a~2023-12-22T14:43:20.868Z",...]
+        //["Eat food~Health~2023-12-24T19:51~2023-12-24T19:51~eat ~2 ", ...]
         return unseparetedNotes.map((unseparetedNote) => {
-          const [category, note, createdAt] = unseparetedNote.split("~~~");
-          return { category, note, createdAt };
+          const [note, category, startDate, endDate, description, priority] = unseparetedNote.split("~~");
+          parsedPriority = parseInt(priority);
+          return { note, category, startDate, endDate, description, priority: parsedPriority };
         });
       };
       notes = createNoteFromOutPutOfCPP(data);
@@ -67,8 +65,9 @@ app.get("/viewNote", (req, res) => {
       }
     });
 
-    studyScheduler.on("error", (error) => {
-      console.error("Error:", error.message);
+    studyScheduler.stderr.on("data", (data) => {
+      const output = data.toString("utf8");
+      console.log(output);
     });
 
     studyScheduler.on("close", (code) => {

@@ -23,7 +23,7 @@ const notesSlice = createSlice({
       })
       .addCase(addNoteAsync.fulfilled, (state, action) => {
         state.status = "adding/fulfilled";
-        console.log(action.payload); // object; note which was added {category, note, createdAt}
+        console.log(action.payload); // object; note which was added {note, category, startDate, endDate, description, priority}
         state.notes.push(action.payload);
       })
       .addCase(addNoteAsync.rejected, (state, action) => {

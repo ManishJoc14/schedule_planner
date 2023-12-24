@@ -1,7 +1,2 @@
-health~~~eat food~~~2023-12-22/15:48:47
-sleep~~~sleep early~~~2023-12-22/15:49:20
-study~~~read more ~~~2023-12-22/15:49:58
-health~~~eat apple~~~2023-12-24/05:48:23
-dance~~~dance with her ~~~2023-12-24/12:13:48
-cook~~~cook fish~~~2023-12-24/12:16:59
-eat~~~eat fish~~~2023-12-24/12:18:45
+Eat food~~Health~~2023-12-24T20:46~~2023-12-24T20:46~~meat~~1
+Manish Joshi~~Study~~2023-12-24T20:59~~2023-12-24T20:59~~read~~3

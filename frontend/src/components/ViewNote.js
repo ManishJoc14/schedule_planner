@@ -22,9 +22,12 @@ const ViewNotes = () => {
           <>
             {notes.map((note, index) => (
               <li key={index}>
-                <strong>Category:</strong> {note.category},{" "}
-                <strong>Note:</strong> {note.note},{" "}
-                <strong>Created At:</strong> {note.createdAt}
+                <strong>Note:</strong> {note.note},{"  "}
+                <strong>Category:</strong> {note.category},{"  "}
+                <strong>Priority:</strong> {note.priority},{"  "}
+                <strong>Start Date:</strong> {note.startDate},{"  "}
+                <strong>End Date:</strong> {note.endDate},{"  "}
+                <strong>Description:</strong> {note.description},{"  "}
               </li>
             ))}
           </>

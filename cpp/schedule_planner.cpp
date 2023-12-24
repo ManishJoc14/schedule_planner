@@ -95,12 +95,15 @@ void handleMessage(const char *type, const std::vector<std::string> &args)
 
     if (strcmp(type, "addNote") == 0)
     {
-        if (args.size() >= 3)
+        if (args.size() >= 6)
         {
-            std::string category = args[0];
-            std::string note = args[1];
-            std::string createdAt = args[2];
-            std::string fullNote = category + "~~~" + note + "~~~" + createdAt;
+            std::string note = args[0];
+            std::string category = args[1];
+            std::string startDate = args[2];
+            std::string endDate = args[3];
+            std::string description = args[4];
+            std::string priority = args[5];
+            std::string fullNote = note + "~~" + category + "~~" + startDate + "~~" + endDate + "~~" + description + "~~" + priority;
             noteManager.addNote(fullNote); // Add a note using provided data
         }
         else
@@ -154,13 +157,11 @@ int main(int argc, char *argv[])
     if (argc > 1)
     {
         // Assuming argv is an array of strings containing command-line arguments
-        // for addNote  argv = ["schedule_planner.exe", "addNote", "Health", "Eat veggies", "2023-01-01 12:00:00"]
-        // i.e [filename.exe, type, category, note, createdAt];
+        // for addNote  argv = ["schedule_planner.exe", "addNote", "note" , "category", "startDate" , "endDate" , "description" , "priority"]
 
         const char *type = argv[1];
         std::vector<std::string> args(argv + 2, argv + argc); // Extract all arguments passed starting from index 2 and make a vector of strings and call it args
         handleMessage(type, args);                            // Call handleMessage with type and args from command-line arguments
     }
-
     return 0;
 }
