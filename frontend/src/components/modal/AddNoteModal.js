@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addNoteAsync } from "../redux/thunk";
+import { addNoteAsync } from "../../redux/thunk";
+import { v4 as uuidv4 } from 'uuid';
 
 const AddNoteModal = () => {
   const dispatch = useDispatch();
   const [noteData, setNoteData] = useState({
+    id : uuidv4(),
     note: "",
     category: "",
     startDate: "",
@@ -16,10 +18,18 @@ const AddNoteModal = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     try {
-      const {note, category, startDate, endDate, description, priority} = noteData;
-      console.log(noteData);
-      if(note && category && startDate && endDate && description && priority){
+      const {id, note, category, startDate, endDate, description, priority} = noteData;
+      if(id && note && category && startDate && endDate && description && priority){
         dispatch(addNoteAsync({ ...noteData }));
+        setNoteData({
+          id : uuidv4(),
+          note: "",
+          category: "",
+          startDate: "",
+          endDate: "",
+          description: "",
+          priority: 1,
+        });
       }else{
         alert("Incomplete");
       }

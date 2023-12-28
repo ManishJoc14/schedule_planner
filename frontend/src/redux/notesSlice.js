@@ -1,6 +1,6 @@
 // notesSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import { addNoteAsync, viewNoteAsync } from "./thunk";
+import { addNoteAsync, deleteNoteAsync, viewNoteAsync } from "./thunk";
 
 const notesSlice = createSlice({
   name: "notesManager",
@@ -23,7 +23,7 @@ const notesSlice = createSlice({
       })
       .addCase(addNoteAsync.fulfilled, (state, action) => {
         state.status = "adding/fulfilled";
-        console.log(action.payload); // object; note which was added {note, category, startDate, endDate, description, priority}
+        //console.log(action.payload); // object; note which was added {note, category, startDate, endDate, description, priority}
         state.notes.push(action.payload);
       })
       .addCase(addNoteAsync.rejected, (state, action) => {
@@ -43,6 +43,20 @@ const notesSlice = createSlice({
       })
       .addCase(viewNoteAsync.rejected, (state, action) => {
         state.status = "viewing/failed";
+        state.error = action.payload;
+      });
+
+    //deleteNoteAsync
+    builder
+      .addCase(deleteNoteAsync.pending, (state) => {
+        state.status = "deleting/Pending";
+      })
+      .addCase(deleteNoteAsync.fulfilled, (state, action) => {
+        state.status = "deleting/fulfilled";
+        state.notes = state.notes.filter((note)=> note.id !== action.payload);
+      })
+      .addCase(deleteNoteAsync.rejected, (state, action) => {
+        state.status = "deleting/failed";
         state.error = action.payload;
       });
   },

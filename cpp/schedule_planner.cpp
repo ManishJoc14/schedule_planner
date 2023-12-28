@@ -1,7 +1,8 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <sstream>
+#include <algorithm>
+#include <vector>
 #include <cstring>
 
 // Class to manage notes and perform operations
@@ -19,18 +20,30 @@ public:
         saveToFile(); // Save notes to file
     }
 
-    // Function to delete a note by index
-    void deleteNote(int index)
+    // Function to delete a note by ID
+    void deleteNote(const std::string &id)
     {
-        if (index >= 0 && index < notes.size())
+        auto it = std::remove_if(notes.begin(), notes.end(),
+                                 [&id](const std::string &note)
+                                 {
+                                     std::istringstream iss(note);
+                                     std::string token;
+                                     std::getline(iss, token, '~'); // Extract the ID
+                                     //  std::cout << "token :" << token << " id :" << id << "\n";
+                                     if (token == id)
+                                     {
+                                         return true; // Remove this note
+                                     }
+                                     return false; // Keep this note
+                                 });
+        if (it != notes.end())
         {
-            std::cout << "Note: " << notes[index] << " deleted\n";
-            notes.erase(notes.begin() + index); // Remove the note at the specified index
-            saveToFile();                       // Save notes to file
+            notes.erase(it, notes.end()); // Erase the removed note(s)
+            saveToFile(true);             // Save the updated notes to the file in truncate mode
         }
         else
         {
-            std::cerr << "Invalid index for deleting note\n";
+            std::cerr << "Note with ID " << id << " not found\n";
         }
     }
 
@@ -74,9 +87,9 @@ public:
 
 private:
     // Function to save notes to a file
-    void saveToFile() const
+    void saveToFile(bool trunc = false) const
     {
-        std::ofstream file("../cpp/notes.txt", std::ios::app); // Open the file in truncate mode to clear existing content
+        std::ofstream file("../cpp/notes.txt", trunc ? std::ios::trunc : std::ios::app); // Open the file in append mode for others, truncation mode for delete
         if (file.is_open())
         {
             for (const auto &note : notes)
@@ -95,7 +108,7 @@ void handleMessage(const char *type, const std::vector<std::string> &args)
 
     if (strcmp(type, "addNote") == 0)
     {
-        if (args.size() >= 6)
+        if (args.size() >= 7)
         {
             std::string note = args[0];
             std::string category = args[1];
@@ -103,7 +116,8 @@ void handleMessage(const char *type, const std::vector<std::string> &args)
             std::string endDate = args[3];
             std::string description = args[4];
             std::string priority = args[5];
-            std::string fullNote = note + "~~" + category + "~~" + startDate + "~~" + endDate + "~~" + description + "~~" + priority;
+            std::string id = args[6];
+            std::string fullNote = id + "~" + note + "~" + category + "~" + startDate + "~" + endDate + "~" + description + "~" + priority;
             noteManager.addNote(fullNote); // Add a note using provided data
         }
         else
@@ -113,10 +127,12 @@ void handleMessage(const char *type, const std::vector<std::string> &args)
     }
     else if (strcmp(type, "deleteNote") == 0)
     {
+        noteManager.readNotesFromFile();                          // Read notes from the file and store in notes vector
+        std::vector<std::string> notes = noteManager.viewNotes(); // Retrieve a copy of notes vector
         if (args.size() >= 1)
         {
-            int index = std::stoi(args[0]); // Convert data to integer (index)
-            noteManager.deleteNote(index);  // Delete a note by index
+            std::string id = args[0];
+            noteManager.deleteNote(id); // Delete a note by id
         }
         else
         {
@@ -157,7 +173,7 @@ int main(int argc, char *argv[])
     if (argc > 1)
     {
         // Assuming argv is an array of strings containing command-line arguments
-        // for addNote  argv = ["schedule_planner.exe", "addNote", "note" , "category", "startDate" , "endDate" , "description" , "priority"]
+        // for addNote  argv = ["schedule_planner.exe", "addNote", "id", "note" , "category", "startDate" , "endDate" , "description" , "priority"]
 
         const char *type = argv[1];
         std::vector<std::string> args(argv + 2, argv + argc); // Extract all arguments passed starting from index 2 and make a vector of strings and call it args
