@@ -13,12 +13,13 @@ const AddNoteModal = () => {
     endDate: "",
     description: "",
     priority: 1,
+    done : false
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     try {
-      const {id, note, category, startDate, endDate, description, priority} = noteData;
+      const {id, note, category, startDate, endDate, description, priority, done} = noteData;
       if(id && note && category && startDate && endDate && description && priority){
         dispatch(addNoteAsync({ ...noteData }));
         setNoteData({
@@ -29,6 +30,7 @@ const AddNoteModal = () => {
           endDate: "",
           description: "",
           priority: 1,
+          done : false
         });
       }else{
         alert("Incomplete");

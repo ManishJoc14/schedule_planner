@@ -1,19 +1,20 @@
 import React from "react";
-import AddNoteModal from "../modal/AddNoteModal";
+import AddNoteModal from "../modal";
+import './navbar.css';
 
 const Nav = () => {
   return (
     <>
-      <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <nav className="fixed top-0 z-50 w-full" style={{backgroundColor : "rgba(243, 246, 253, 1)"}}>
         <div className="px-3 py-3 lg:px-5 lg:pl-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center justify-start rtl:justify-end">
               <button
                 data-drawer-target="logo-sidebar"
                 data-drawer-toggle="logo-sidebar"
                 aria-controls="logo-sidebar"
                 type="button"
-                className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
               >
                 <span className="sr-only">Open sidebar</span>
                 <svg
@@ -30,28 +31,29 @@ const Nav = () => {
                   />
                 </svg>
               </button>
-              <a href=" " className="flex ms-2 md:me-24">
+              <a href="/" className="flex ms-2 md:me-24 ">
                 <img
                   src={require("../../assets/logo.png")}
                   className="h-8 me-3 rounded "
                   alt="Habbit Buddy Logo"
                 />
-                <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
+                <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap"style={{fontSize:'1.8rem'}}>
                   HabitBuddy
                 </span>
               </a>
             </div>
             <div className="flex items-center">
-              <div className="flex items-center ms-3">
+              <div className="flex items-center">
               <div className="mx-4">
                 {/* Modal toggle */}
               <button
                 data-modal-target="crud-modal"
                 data-modal-toggle="crud-modal"
-                className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                className="addbutton block bg-gray-900 text-white font-medium rounded-lg text-sm px-3 py-3 text-center"
                 type="button"
               >
-                Add task
+                 <span className="material-symbols-outlined">add</span>
+                 Add task
               </button>
               {/* SECTION Main modal */}
               <AddNoteModal />
@@ -59,7 +61,7 @@ const Nav = () => {
                 <div>
                   <button
                     type="button"
-                    className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                    className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300"
                     aria-expanded="false"
                     data-dropdown-toggle="dropdown-user"
                   >
@@ -72,7 +74,7 @@ const Nav = () => {
                   </button>
                 </div>
                 <div
-                  className="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600"
+                  className="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow"
                   id="dropdown-user"
                 >
                   <div className="px-4 py-3" role="none">
@@ -83,7 +85,7 @@ const Nav = () => {
                       Manish Joshi
                     </p>
                     <p
-                      className="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
+                      className="text-sm font-medium text-gray-900 truncate"
                       role="none"
                     >
                       manishjoc14@gmail.com
@@ -93,7 +95,7 @@ const Nav = () => {
                     <li>
                       <a
                         href=" "
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 "
                         role="menuitem"
                       >
                         Dashboard
@@ -102,19 +104,19 @@ const Nav = () => {
                     <li>
                       <a
                         href=" "
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         role="menuitem"
                       >
                         Settings
                       </a>
                     </li>
                     {/* <li>
-                  <a href=" " className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Scores</a>
+                  <a href=" " className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Scores</a>
                 </li> */}
                     <li>
                       <a
                         href=" "
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         role="menuitem"
                       >
                         Sign out

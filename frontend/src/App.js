@@ -1,6 +1,6 @@
-import AddNote from "./components/rightSideBar";
 import Nav from "./components/navbar";
-import Aside from "./components/leftSidebar";
+import LeftSideBar from "./components/leftSidebar";
+import RightSideBar from "./components/rightSidebar/RightsideBar";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { viewNoteAsync } from "./redux/thunk";
@@ -22,8 +22,8 @@ function App() {
   return (
     <>
       <Nav />
-      <Aside />
-      <AddNote />
+      <LeftSideBar />
+      <RightSideBar />
     </>
   );
 }

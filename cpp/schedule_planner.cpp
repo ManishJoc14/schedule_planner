@@ -47,6 +47,49 @@ public:
         }
     }
 
+void checkNote(const std::string &id, const std::string &done)
+{
+    auto it = std::find_if(notes.begin(), notes.end(),
+                           [&id](const std::string &note)
+                           {
+                               std::istringstream iss(note);
+                               std::string token;
+                               std::getline(iss, token, '~'); // Extract the ID
+                               return (token == id);
+                           });
+
+    if (it != notes.end())
+    {
+        size_t pos = it->find_last_of('~'); // Find the last occurrence of '~'
+        if (pos != std::string::npos)
+        {
+            size_t secondLastPos = it->substr(0, pos).find_last_of('~'); // Find the second-to-last occurrence of '~'
+            if (secondLastPos != std::string::npos)
+            {
+                // Replace the second-to-last field with the value of 'done'
+                it->replace(secondLastPos + 1, pos - secondLastPos - 1, done);
+                saveToFile(true); // Save the updated notes to the file in truncate mode
+                std::cout << "Note with ID " << id << " updated\n";
+            }
+            else
+            {
+                std::cerr << "Invalid note format\n";
+            }
+        }
+        else
+        {
+            std::cerr << "Invalid note format\n";
+        }
+    }
+    else
+    {
+        std::cerr << "Note with ID " << id << " not found\n";
+    }
+}
+
+
+
+
     // Function to update a note by index
     void updateNote(int index, const std::string &newNote)
     {
@@ -73,6 +116,7 @@ public:
     {
         notes.clear(); // Clear existing notes
 
+        // read mode
         std::ifstream file("../cpp/notes.txt");
         if (file.is_open())
         {
@@ -89,6 +133,7 @@ private:
     // Function to save notes to a file
     void saveToFile(bool trunc = false) const
     {
+        // write mode
         std::ofstream file("../cpp/notes.txt", trunc ? std::ios::trunc : std::ios::app); // Open the file in append mode for others, truncation mode for delete
         if (file.is_open())
         {
@@ -108,7 +153,7 @@ void handleMessage(const char *type, const std::vector<std::string> &args)
 
     if (strcmp(type, "addNote") == 0)
     {
-        if (args.size() >= 7)
+        if (args.size() >= 8)
         {
             std::string note = args[0];
             std::string category = args[1];
@@ -117,7 +162,8 @@ void handleMessage(const char *type, const std::vector<std::string> &args)
             std::string description = args[4];
             std::string priority = args[5];
             std::string id = args[6];
-            std::string fullNote = id + "~" + note + "~" + category + "~" + startDate + "~" + endDate + "~" + description + "~" + priority;
+            std::string done = args[7];
+            std::string fullNote = id + "~" + note + "~" + category + "~" + startDate + "~" + endDate + "~" + description + "~" + done + "~" + priority;
             noteManager.addNote(fullNote); // Add a note using provided data
         }
         else
@@ -133,6 +179,21 @@ void handleMessage(const char *type, const std::vector<std::string> &args)
         {
             std::string id = args[0];
             noteManager.deleteNote(id); // Delete a note by id
+        }
+        else
+        {
+            std::cerr << "Insufficient arguments for deleteNote" << std::endl;
+        }
+    }
+    else if (strcmp(type, "checkNote") == 0)
+    {
+        noteManager.readNotesFromFile();                          // Read notes from the file and store in notes vector
+        std::vector<std::string> notes = noteManager.viewNotes(); // Retrieve a copy of notes vector
+        if (args.size() >= 2)
+        {
+            std::string id = args[0];
+            std::string done = args[1];
+            noteManager.checkNote(id, done); // Delete a note by id
         }
         else
         {
@@ -173,7 +234,7 @@ int main(int argc, char *argv[])
     if (argc > 1)
     {
         // Assuming argv is an array of strings containing command-line arguments
-        // for addNote  argv = ["schedule_planner.exe", "addNote", "id", "note" , "category", "startDate" , "endDate" , "description" , "priority"]
+        // for addNote  argv = ["schedule_planner.exe", "addNote", "note" , "category", "startDate" , "endDate" , "description" ,"priority", "id", "done" ]
 
         const char *type = argv[1];
         std::vector<std::string> args(argv + 2, argv + argc); // Extract all arguments passed starting from index 2 and make a vector of strings and call it args

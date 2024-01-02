@@ -11,11 +11,11 @@ app.use(cors());
 // Route to add a note
 app.post("/addNote", (req, res) => {
   try {
-    const { id, note, category, startDate, endDate, description, priority } = req.body;
+    const { id, note, category, startDate, endDate, description, priority , done} = req.body;
     const type = "addNote";
 
     // Execute the C++ program with the note as a command-line argument
-    const studyScheduler = spawn("./schedule_planner.exe", [type, note, category, startDate, endDate, description, priority, id]);
+    const studyScheduler = spawn("./schedule_planner.exe", [type, note, category, startDate, endDate, description, priority, id, done]);
 
     studyScheduler.stdout.on("data", (data) => {
       const output = data.toString("utf8");
@@ -29,7 +29,7 @@ app.post("/addNote", (req, res) => {
 
     studyScheduler.on("close", (code) => {
       console.log(`C++ process exited with code ${code}`);
-      res.send({ id, note, category, startDate, endDate, description, priority });
+      res.send({ id, note, category, startDate, endDate, description, priority, done });
     });
   } catch (error) {
     console.error("Error adding note:", error);
@@ -52,9 +52,10 @@ app.get("/viewNote", (req, res) => {
           (note) => note.trim() !== ""
         );
         return unseparetedNotes.map((unseparetedNote) => {
-          const [id, note, category, startDate, endDate, description, priority] = unseparetedNote.split("~");
+          const [id, note, category, startDate, endDate, description, done, priority] = unseparetedNote.split("~");
           parsedPriority = parseInt(priority);
-          return { id, note, category, startDate, endDate, description, priority: parsedPriority };
+          boolDone = done === 'true';
+          return { id, note, category, startDate, endDate, description, done : boolDone, priority: parsedPriority };
         });
       };
       notes = createNoteFromOutPutOfCPP(data);
@@ -85,6 +86,32 @@ app.post("/deleteNote", (req, res) => {
     const { id } = req.body;
     const studyScheduler = spawn("./schedule_planner.exe", [type, id]);
 
+    studyScheduler.stdout.on("data", (data) => {
+      const output = data.toString("utf8");
+      console.log(output);
+    });
+
+    studyScheduler.stderr.on("data", (data) => {
+      const output = data.toString("utf8");
+      console.log(output);
+    });
+
+    studyScheduler.on("close", (code) => {
+      console.log(`C++ process exited with code ${code}`);
+      res.send({ id });
+    });
+  } catch (error) {
+    console.error("Error deleting note:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Route to checkNote
+app.post("/checkNote", (req, res) => {
+  try {
+    const type = "checkNote";
+    const { id, done } = req.body;
+    const studyScheduler = spawn("./schedule_planner.exe", [type, id, !done ]);
     studyScheduler.stdout.on("data", (data) => {
       const output = data.toString("utf8");
       console.log(output);

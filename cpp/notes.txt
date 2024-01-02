@@ -1,7 +1,5 @@
-2c14ff92-6a09-43af-9539-20355d232e59~dance~Entertainmaint~2023-12-29T01:05~2024-01-06T01:05~dance with her~1
-3685d55f-19c9-4618-99bc-835b2c2751f2~study~Study~2023-12-29T01:05~2023-12-30T01:06~read a book~1
-6816342f-2ace-45a7-81cb-0232ba6b3971~food~Health~2023-12-29T01:07~2023-12-30T01:07~eat~1
-e93dbfe6-0d5e-4174-8190-52d28798e6e3~run~Exercise~2023-12-28T01:10~2024-01-04T01:11~go for run~1
-a0e1038e-f47c-4ef7-a7f0-cb63e1f55cda~sleep early ~Sleep~2023-12-28T01:11~2024-02-01T01:11~sleep now~3
-d851011e-92a5-4b0c-85e8-6debf2006730~do exercise~Exercise~2023-12-28T01:12~2024-01-06T01:12~go ~3
-54b377df-f82d-4d2c-8ba9-572c46814636~read  a book~Study~2023-12-28T01:13~2024-01-05T01:13~chemistry~3
+3685d55f-19c9-4618-99bc-835b2c2751f2~study~Study~2023-12-29T01:05~2023-12-30T01:06~read a book~false~1
+6816342f-2ace-45a7-81cb-0232ba6b3971~food~Health~2023-12-29T01:07~2023-12-30T01:07~eat~false~2
+e93dbfe6-0d5e-4174-8190-52d28798e6e3~run~Exercise~2023-12-28T01:10~2024-01-04T01:11~go for run~false~5
+41933c9a-d571-48ff-8aee-afda5b277c18~do maths hw~Study~2024-01-01T17:08~2024-01-02T17:08~do it today~true~3
+9c4bad50-1cf3-4cd5-858e-ee3ac332b25b~dance~Entertainmaint~2024-01-01T22:24~2024-01-04T22:24~dance with her~false~4

@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Notes from "../components/notes";
+import Notes from "../components/notes/Notes";
 import Habits from './../components/habits';
 import Categories from './../components/categories';
 import Dashboard from './../components/dashboard';
@@ -12,9 +12,9 @@ const PublicRoutes = () => {
     <>
       <Routes>
         <Route path="/" element={<Notes />} />
-        <Route path="/today" element={<Notes />} />
-        <Route path="/habits" element={<Habits />} />
+        {/* <Route path="/today" element={<Notes />} /> */}
         <Route path="/tasks" element={<Notes />} />
+        <Route path="/habits" element={<Habits />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/timer" element={<Timer />} />
