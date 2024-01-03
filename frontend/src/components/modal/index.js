@@ -20,7 +20,7 @@ const AddNoteModal = () => {
     e.preventDefault();
     try {
       const {id, note, category, startDate, endDate, description, priority, done} = noteData;
-      if(id && note && category && startDate && endDate && description && priority){
+      if(id && note && category && startDate && endDate && description && priority && !done){
         dispatch(addNoteAsync({ ...noteData }));
         setNoteData({
           id : uuidv4(),

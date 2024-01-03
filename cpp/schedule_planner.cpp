@@ -4,157 +4,135 @@
 #include <algorithm>
 #include <vector>
 #include <cstring>
+#include "json.hpp"
 
-// Class to manage notes and perform operations
+using json = nlohmann::json;
+
 class NoteManager
 {
 private:
-    std::vector<std::string> notes; // Vector to store notes
+    json notes;
 
 public:
-    // Function to add a new note
-    void addNote(const std::string &note)
+    // Function to read notes from a JSON file into the vector
+    void readFromFile()
     {
-        notes.push_back(note); // Add the note to the vector
-        std::cout << "Note: " << note << " added\n";
-        saveToFile(); // Save notes to file
-    }
-
-    // Function to delete a note by ID
-    void deleteNote(const std::string &id)
-    {
-        auto it = std::remove_if(notes.begin(), notes.end(),
-                                 [&id](const std::string &note)
-                                 {
-                                     std::istringstream iss(note);
-                                     std::string token;
-                                     std::getline(iss, token, '~'); // Extract the ID
-                                     //  std::cout << "token :" << token << " id :" << id << "\n";
-                                     if (token == id)
-                                     {
-                                         return true; // Remove this note
-                                     }
-                                     return false; // Keep this note
-                                 });
-        if (it != notes.end())
+        // Open the file for reading
+        std::ifstream file("../cpp/notes.json");
+        if (file.is_open())
         {
-            notes.erase(it, notes.end()); // Erase the removed note(s)
-            saveToFile(true);             // Save the updated notes to the file in truncate mode
-        }
-        else
-        {
-            std::cerr << "Note with ID " << id << " not found\n";
-        }
-    }
-
-void checkNote(const std::string &id, const std::string &done)
-{
-    auto it = std::find_if(notes.begin(), notes.end(),
-                           [&id](const std::string &note)
-                           {
-                               std::istringstream iss(note);
-                               std::string token;
-                               std::getline(iss, token, '~'); // Extract the ID
-                               return (token == id);
-                           });
-
-    if (it != notes.end())
-    {
-        size_t pos = it->find_last_of('~'); // Find the last occurrence of '~'
-        if (pos != std::string::npos)
-        {
-            size_t secondLastPos = it->substr(0, pos).find_last_of('~'); // Find the second-to-last occurrence of '~'
-            if (secondLastPos != std::string::npos)
+            // Check if the file is not empty
+            if (file.peek() != std::ifstream::traits_type::eof())
             {
-                // Replace the second-to-last field with the value of 'done'
-                it->replace(secondLastPos + 1, pos - secondLastPos - 1, done);
-                saveToFile(true); // Save the updated notes to the file in truncate mode
-                std::cout << "Note with ID " << id << " updated\n";
+                // Read JSON data from the file into the notes vector
+                file >> notes;
             }
             else
             {
-                std::cerr << "Invalid note format\n";
+                // Print a message if the file is empty
+                std::cerr << "File is empty." << std::endl;
             }
-        }
-        else
-        {
-            std::cerr << "Invalid note format\n";
-        }
-    }
-    else
-    {
-        std::cerr << "Note with ID " << id << " not found\n";
-    }
-}
-
-
-
-
-    // Function to update a note by index
-    void updateNote(int index, const std::string &newNote)
-    {
-        if (index >= 0 && index < notes.size())
-        {
-            std::cout << "Note: " << notes[index] << " updated to " << newNote << "\n";
-            notes[index] = newNote; // Update the note at the specified index
-            saveToFile();           // Save notes to file
-        }
-        else
-        {
-            std::cerr << "Invalid index for updating note\n";
-        }
-    }
-
-    // Function to view all notes
-    std::vector<std::string> viewNotes() const
-    {
-        return notes; // Return a copy of the notes vector
-    }
-
-    // Function to read notes from a file
-    void readNotesFromFile()
-    {
-        notes.clear(); // Clear existing notes
-
-        // read mode
-        std::ifstream file("../cpp/notes.txt");
-        if (file.is_open())
-        {
-            std::string line;
-            while (std::getline(file, line))
-            {
-                notes.push_back(line); // Read each line from the file and add it to notes vector
-            }
+            // Close the file
             file.close();
         }
+        else
+        {
+            // Print an error message if the file cannot be opened
+            std::cerr << "Error opening file: " << std::endl;
+        }
     }
 
-private:
-    // Function to save notes to a file
-    void saveToFile(bool trunc = false) const
+    // Function to add a new note to the notes vector and save to file
+    void addNote(const json &newNote)
     {
-        // write mode
-        std::ofstream file("../cpp/notes.txt", trunc ? std::ios::trunc : std::ios::app); // Open the file in append mode for others, truncation mode for delete
+        try
+        {
+            // Add the new note to the notes vector
+            notes.push_back(newNote);
+            // Save the updated notes vector to the file
+            saveToFile();
+            // Print the details of the added note
+            std::cout << newNote.dump(2);
+        }
+        catch (const std::exception &e)
+        {
+            // Print an error message if an exception occurs
+            std::cerr << e.what() << '\n';
+        }
+    }
+
+    // Function to mark a note as done based on its ID
+    void checkNote(const std::string &id, const std::string &done)
+    {
+        // Iterate over notes to find the note with the specified ID
+        for (auto &note : notes)
+        {
+            if (note["id"] == id)
+            {
+                // Update the "done" field for the found note
+                note["done"] = done;
+                // Save the updated notes vector to the file
+                saveToFile();
+                // Exit the loop after updating
+                break;
+            }
+        }
+    }
+
+    // Function to delete a note based on its ID
+    void deleteNote(const std::string &id)
+    {
+        // Remove the note with the specified ID from the notes vector
+        notes.erase(std::remove_if(notes.begin(), notes.end(),
+                                   [&id](const json &note)
+                                   { return note["id"] == id; }),
+                    notes.end());
+        // Save the updated notes vector to the file
+        saveToFile();
+        // Print a message indicating the deletion
+        std::cout << "Note with ID " << id << " deleted\n";
+    }
+
+    // Function to get the current notes vector
+    json getNotes() const
+    {
+        return notes;
+    }
+
+    // Function to save the notes vector to a file
+    void saveToFile()
+    {
+        // Open the file for writing
+        std::ofstream file("../cpp/notes.json");
         if (file.is_open())
         {
-            for (const auto &note : notes)
-            {
-                file << note << "\n"; // Write each note to the file
-            }
-            file.close(); // Close the file
+            // Write the notes vector to the file in a pretty-printed format
+            file << notes.dump(2);
+            // Close the file
+            file.close();
+        }
+        else
+        {
+            // Print an error message if the file cannot be opened for writing
+            std::cerr << "Error opening file for writing." << std::endl;
         }
     }
 };
 
-// Function to handle messages based on type and data
+// Function to handle different types of messages based on command-line arguments
 void handleMessage(const char *type, const std::vector<std::string> &args)
 {
-    NoteManager noteManager; // Create an instance of NoteManager
+    // Create an instance of the NoteManager class
+    NoteManager noteManager;
 
+    // Check the type of message and perform corresponding actions
     if (strcmp(type, "addNote") == 0)
     {
+        // Handle 'addNote' message
+        noteManager.readFromFile();
         if (args.size() >= 8)
         {
+            // Extract parameters for adding a new note
             std::string note = args[0];
             std::string category = args[1];
             std::string startDate = args[2];
@@ -163,82 +141,87 @@ void handleMessage(const char *type, const std::vector<std::string> &args)
             std::string priority = args[5];
             std::string id = args[6];
             std::string done = args[7];
-            std::string fullNote = id + "~" + note + "~" + category + "~" + startDate + "~" + endDate + "~" + description + "~" + done + "~" + priority;
-            noteManager.addNote(fullNote); // Add a note using provided data
+
+            // Create a JSON object for the new note
+            json newNote = {
+                {"id", id},
+                {"note", note},
+                {"category", category},
+                {"startDate", startDate},
+                {"endDate", endDate},
+                {"description", description},
+                {"done", done},
+                {"priority", priority}};
+
+            // Add the new note to the NoteManager
+            noteManager.addNote(newNote);
         }
         else
         {
+            // Print an error message for insufficient arguments
             std::cerr << "Insufficient arguments for addNote" << std::endl;
         }
     }
     else if (strcmp(type, "deleteNote") == 0)
     {
-        noteManager.readNotesFromFile();                          // Read notes from the file and store in notes vector
-        std::vector<std::string> notes = noteManager.viewNotes(); // Retrieve a copy of notes vector
+        // Handle 'deleteNote' message
+        noteManager.readFromFile();
         if (args.size() >= 1)
         {
+            // Extract parameter for deleting a note
             std::string id = args[0];
-            noteManager.deleteNote(id); // Delete a note by id
+            // Delete the note with the specified ID
+            noteManager.deleteNote(id);
         }
         else
         {
+            // Print an error message for insufficient arguments
             std::cerr << "Insufficient arguments for deleteNote" << std::endl;
         }
     }
     else if (strcmp(type, "checkNote") == 0)
     {
-        noteManager.readNotesFromFile();                          // Read notes from the file and store in notes vector
-        std::vector<std::string> notes = noteManager.viewNotes(); // Retrieve a copy of notes vector
+        // Handle 'checkNote' message
+        noteManager.readFromFile();
         if (args.size() >= 2)
         {
+            // Extract parameters for checking a note
             std::string id = args[0];
             std::string done = args[1];
-            noteManager.checkNote(id, done); // Delete a note by id
+            // Mark the note with the specified ID as done or not done
+            noteManager.checkNote(id, done);
         }
         else
         {
-            std::cerr << "Insufficient arguments for deleteNote" << std::endl;
-        }
-    }
-    else if (strcmp(type, "updateNote") == 0)
-    {
-        if (args.size() >= 2)
-        {
-            int index = std::stoi(args[0]); // Convert data to integer (index)
-            std::string newNote = args[1];
-            noteManager.updateNote(index, newNote); // Update a note by index
-        }
-        else
-        {
-            std::cerr << "Insufficient arguments for updateNote" << std::endl;
+            // Print an error message for insufficient arguments
+            std::cerr << "Insufficient arguments for checkNote" << std::endl;
         }
     }
     else if (strcmp(type, "viewNote") == 0)
     {
-        noteManager.readNotesFromFile();                          // Read notes from the file and store in notes vector
-        std::vector<std::string> notes = noteManager.viewNotes(); // Retrieve a copy of notes vector
-        for (const auto &note : notes)
-        {
-            std::cout << note << "\n"; // Print each note
-        }
+        // Handle 'viewNote' message
+        noteManager.readFromFile();
+        // Display the current notes in a pretty-printed format
+        json notes = noteManager.getNotes();
+        std::cout << notes.dump(2);
     }
     else
     {
-        std::cerr << "Unknown message type: " << type << std::endl; // Handle unknown message types
+        // Print an error message for an unknown message type
+        std::cerr << "Unknown message type: " << type << std::endl;
     }
 }
 
-// Main function
+// Main function to process command-line arguments and handle messages
 int main(int argc, char *argv[])
 {
     if (argc > 1)
     {
-        // Assuming argv is an array of strings containing command-line arguments
-        // for addNote  argv = ["schedule_planner.exe", "addNote", "note" , "category", "startDate" , "endDate" , "description" ,"priority", "id", "done" ]
-
+        // Extract the message type and arguments from command-line arguments
         const char *type = argv[1];
-        std::vector<std::string> args(argv + 2, argv + argc); // Extract all arguments passed starting from index 2 and make a vector of strings and call it args
-        handleMessage(type, args);                            // Call handleMessage with type and args from command-line arguments
+        std::vector<std::string> args(argv + 2, argv + argc);
+        // Handle the message based on its type
+        handleMessage(type, args);
     }
     return 0;
 }

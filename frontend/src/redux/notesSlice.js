@@ -43,7 +43,7 @@ const notesSlice = createSlice({
       .addCase(viewNoteAsync.fulfilled, (state, action) => {
         state.status = "viewing/fulfilled";
         // console.log(action.payload); //array of notes object
-        state.notes = [...action.payload];
+        state.notes = [...action.payload || []];
       })
       .addCase(viewNoteAsync.rejected, (state, action) => {
         state.status = "viewing/failed";
