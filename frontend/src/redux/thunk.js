@@ -19,7 +19,7 @@ export const viewNoteAsync = createAsyncThunk(
   async (thunkAPI) => {
     try {
       const response = await view_Note();
-      return response?.data?.notes; // array of notes obj [{id, note, category, startDate, endDate, description, priority, done}, ....]
+      return response.data; // array of notes obj [{id, note, category, startDate, endDate, description, priority, done}, ....]
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }

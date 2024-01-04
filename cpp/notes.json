@@ -2,7 +2,7 @@
   {
     "category": "Exercise",
     "description": "doo",
-    "done": "false",
+    "done": "true",
     "endDate": "2024-01-05T00:08",
     "id": "8ece577c-a864-4008-b0f0-3ec1e7c0dcd6",
     "note": "Neev Badu",
@@ -18,5 +18,15 @@
     "note": "Manish Joshi",
     "priority": "2",
     "startDate": "2024-01-04T00:09"
+  },
+  {
+    "category": "Study",
+    "description": "read",
+    "done": "false",
+    "endDate": "2024-01-12T09:54",
+    "id": "cc69aff4-702c-4577-939f-f9ffe3a75a1d",
+    "note": "Neev Badu",
+    "priority": "1",
+    "startDate": "2024-01-04T09:54"
   }
 ]
